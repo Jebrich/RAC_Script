@@ -145,46 +145,61 @@ int topButton = 0;
 int rightButton = 0;
 int leftButton = 0;
 
-//!!!!!!!!!!! DEAD ZONE RANGE !!!!!!!!!!\\lear
-
-
-const int deadZoneMax_X = 150;
-const int deadZoneMin_X = -150;
-
-
-const int deadZoneMax_Y = 95;
-const int deadZoneMin_Y = -95;
-
-
-
 //!!!!!!!!!!! LEVER AXIS !!!!!!!!!!\\
 
 //!!!!!!!!!!! ANALOG !!!!!!!!!!\\
 
-int x_Axis = strValue;
-int y_Axis = accValue;
+// ! Check if accValue falls within the dead zone range
+	if (accValue >= 422 && accValue <= 495) {
+	// ! If it does, set accValue to zero
+	accValue = 512;
+	}
 
-x_Axis = map(x_Axis, 0, 1023, -1023, 1023);
-x_Axis = constrain(x_Axis, -512, 512);
-y_Axis = map(y_Axis, 0, 1023, 1023, -1023); 
-y_Axis = constrain(y_Axis, -512, 512);
+	if (strValue >= 399 && strValue <= 479) {
+	// ! If it does, set strValue to zero
+	strValue = 512;
+	}
 
-if (x_Axis >= deadZoneMin_X && x_Axis <= deadZoneMax_X) {
-x_Axis = 0; //+ Set idle position to 0 +
-}
-if (y_Axis >= deadZoneMin_Y && y_Axis <= deadZoneMax_Y) {
-y_Axis = 0; //+ Set idle position to 0 +
-}
-// todo: make motors go ahead and backward 
+/* int up = map(accValue, 0, 511, 512, 0);
+int down = map(accValue, 512, 1023, 0, -512);  // Modified mapping range for backward movement
+int dx = map(strValue, 513, 1023, 0, 512);
+int sx = map(strValue, 0, 511, -512, 0);
+dx = constrain(dx, 0, 512);
+sx = constrain(sx, -512, 0);
+up = constrain(up, 0, 512);
+down = constrain(down, -512, 0); */
 
-	sentData.speedmotorLeft = y_Axis + x_Axis;
-	sentData.speedmotorRight = x_Axis - y_Axis;
+int axis_y = map(accValue, 0, 1023, -512, 512);
+int axis_x = map(strValue, 0, 1023, 512, -512);
+axis_y = constrain(axis_y, -512, 512);
+axis_x = constrain(axis_x, -512, 512);
+
+
+
+
+
+/*Serial.print("Sterzo: ");
+Serial.println(strValue);
+Serial.print("Acceleratore: ");
+Serial.println(accValue);*/
+
+// todo: make motors go ahead and backward	
+
+
+
+sentData.speedmotorLeft = axis_x + axis_y;
+sentData.speedmotorRight = axis_x - axis_y;
+
+Serial.print("SpeedmotorLeft: ");
+Serial.println(sentData.speedmotorLeft);
+Serial.print("SpeedmotorRight: ");
+Serial.println(sentData.speedmotorRight);	
 
 //!!!!!!!!!!! BUTTONS !!!!!!!!!!\\
 
 // TODO RIGHT BUTTON
 
-rightButton = digitalRead(rightBtn);
+/* rightButton = digitalRead(rightBtn);
 
 if (rightButton == LOW) {
 delay(50); //! Delay for button debouncing
@@ -238,7 +253,7 @@ if (digitalRead(topBtn) == LOW) {
 
 
 
-/* if (leverValue >= deadZoneMin && leverValue <= deadZoneMax) {
+ if (leverValue >= deadZoneMin && leverValue <= deadZoneMax) {
 leverValue = 0; // Set idle position to 0
 } else {
 leverValue = map(leverValue, 0, 1023, 1023, -1023);
@@ -246,20 +261,12 @@ leverValue = constrain(leverValue, -512, 512);
 } */
 
 // + ------------------------------ +
-Serial.println("--------------------");
-Serial.print("x_axis: ");
-Serial.println(x_Axis);
-Serial.print("y_axis: ");
-Serial.println(y_Axis);
+
+/* Serial.println("--------------------");
 Serial.print("right motor: ");
 Serial.println(sentData.speedmotorRight);
 Serial.print("left motor: ");
 Serial.println(sentData.speedmotorLeft);
-Serial.print("x ");
-Serial.println(x_Axis);
-Serial.print("\t");
-Serial.print("y ");
-Serial.println(y_Axis);
 Serial.print("RIGHT BUTTON: ");
 Serial.println(rightButton);
 Serial.print("LEFT BUTTON: ");
@@ -268,7 +275,8 @@ Serial.print("TOP BUTTON: ");
 Serial.println(topButton);
 Serial.print("LEVA Value: ");
 Serial.println(leverValue);
-Serial.println("--------------------");
+Serial.println("--------------------"); */
+
 
 // ! -------------------------------------------- //
 
@@ -279,6 +287,5 @@ Serial.println("--------------------");
   } else {
     //Serial.println("Error sending the data");
   }
-  delay(10);
 }
 #endif
