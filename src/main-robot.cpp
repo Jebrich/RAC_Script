@@ -21,8 +21,8 @@ static const char *TAG = "MAIN";
 #define MOTOR_B_IN1 16
 #define MOTOR_B_IN2 17
 
-#define MOTOR_C_IN1 4
-#define MOTOR_C_IN2 5
+#define MOTOR_C_IN1 5
+#define MOTOR_C_IN2 4
 
 
 
@@ -31,7 +31,7 @@ MotorControl motor1 = MotorControl(MOTOR_B_IN1, MOTOR_B_IN2);
 //LEFT
 MotorControl motor2 = MotorControl(MOTOR_A_IN1, MOTOR_A_IN2);
 //WPN
-MotorControl motor3 = MotorControl(MOTOR_C_IN1, MOTOR_C_IN2);
+MotorControl motor3 = MotorControl(MOTOR_C_IN1, MOTOR_C_IN2, 80);
 
 BatteryMonitor Battery = BatteryMonitor();
 
@@ -40,7 +40,7 @@ LedUtility Led = LedUtility();
 typedef struct {
   int16_t speedmotorLeft;
   int16_t speedmotorRight;
-  int16_t packetArg1;
+  int16_t spedmotorArm;
   int16_t packetArg2;
   int16_t packetArg3;
 }
@@ -54,7 +54,7 @@ unsigned long lastPacketMillis = 0;
 
 int recLpwm = 0;
 int recRpwm = 0;
-int recArg1 = 0;
+int recArm = 0;
 int recArg2 = 0;
 int recArg3 = 0;
 
@@ -65,7 +65,7 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len)
   memcpy(&recData, incomingData, sizeof(recData));
   recLpwm = recData.speedmotorLeft;
   recRpwm = recData.speedmotorRight;
-  recArg1 = recData.packetArg1;
+  recArm = recData.spedmotorArm;
   recArg2 = recData.packetArg2;
   recArg3 = recData.packetArg3;
   lastPacketMillis = millis();
@@ -85,6 +85,21 @@ int handle_blink(){
   Led.ledOn();
   return 0;
 }
+ float kp = 4.0;
+
+void set_weapon_angle(int target){
+  int potVal = analogRead(weapPot);
+  float error = target - potVal;
+  if (abs(error) < 5){
+	motor3.setSpeed(0);
+	return;
+  }
+  float output = kp * error;
+  output = constrain(output, -512, 512);
+  motor3.setSpeed(output);
+}
+
+
 
 void setup()
 {
@@ -108,6 +123,7 @@ void setup()
   delay(500);
 
   WiFi.mode(WIFI_STA);
+  esp_wifi_set_channel(2, WIFI_SECOND_CHAN_NONE);
   if (esp_wifi_set_mac(WIFI_IF_STA, &robotAddress[0]) != ESP_OK)
   {
     Serial.println("Error changing mac");
@@ -138,20 +154,17 @@ void loop()
     motor1.setSpeed(0);
     motor2.setSpeed(0);
     motor3.setSpeed(0);
+    Serial.println("FAILSAFING");
   }
   else
   {
   //! vvvv ----- YOUR AWESOME CODE HERE ----- vvvv //
 
-	motor1.setSpeed(recLpwm); // Right motor
-	motor2.setSpeed(recRpwm); // Left motor
-	motor3.setSpeed(0); // Weapon motor
-	
-	
-	Serial.print("Left: ");
-	Serial.println(recLpwm);
-	Serial.print("Right: ");
-	Serial.println(recRpwm);
+	motor1.setSpeed(recRpwm);// Right motor
+	motor2.setSpeed(recLpwm); // Left motor
+	set_weapon_angle(recArm); // Weapon motor
+	Serial.print("Weapon: ");
+	Serial.println(recArm);
   //!  -------------------------------------------- //
   }
   delay(2);
