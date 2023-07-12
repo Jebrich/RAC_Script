@@ -142,7 +142,7 @@ void loop()
 	int rightButton = 0;
 	int leftButton = 0;
 
-	//!!!!!!!!!!! DEAD ZONE RANGE !!!!!!!!!!\\lear
+	//!!!!!!!!!!! DEAD ZONE RANGE !!!!!!!!!!\\
 
 	const int deadZoneMax_X = 160;
 	const int deadZoneMin_X = -160;
@@ -153,7 +153,32 @@ void loop()
 	const int deadZoneMax_L = 610;
 	const int deadZoneMin_L = 450;
 
-	//!!!!!!!!!!! LEVER AXIS !!!!!!!!!!\\
+		 //!!!!!!!!!!! BUTTONS !!!!!!!!!!\\
+
+	//  RIGHT BUTTON
+		if (rightValue)
+		{
+			// Button is pressed, Devastator puts arm up
+			sentData.speedmotorArm = 400;
+		}
+	
+	// LEFT BUTTON	
+		if (leftButton)
+		{
+			// Button is pressed, devastator puts arm full back
+			sentData.speedmotorArm = 0;
+		}
+
+	// TOP BUTTON
+		if (topValue)
+		{
+			// Button is pressed,  Devastator goes backward
+			sentData.speedmotorRight = -512;
+			sentData.speedmotorLeft = -512;
+			
+		}
+	
+
 
 	//!!!!!!!!!!! ANALOG !!!!!!!!!!\\
 
@@ -182,47 +207,6 @@ void loop()
 	sentData.speedmotorLeft = y_Axis + x_Axis;
 	sentData.speedmotorRight = x_Axis - y_Axis;
 	sentData.speedmotorArm = L_Axis;
-	
-	 //!!!!!!!!!!! BUTTONS !!!!!!!!!!\\
-
-	// TODO RIGHT BUTTON
-
-	rightButton = digitalRead(rightBtn);
-
-	
-		if (rightValue)
-		{
-			// Button is pressed, perform action
-			sentData.speedmotorArm = 400;
-			// Additional code...
-		}
-	
-
-	// TODO LEFT BUTTON
-
-	leftButton = digitalRead(leftBtn);
-
-	
-	
-		if (leftButton)
-		{
-			// Button is pressed, perform action
-			sentData.speedmotorArm = 0;
-			// Additional code...
-		}
-
-	// TODO TOP BUTTON
-
-	topButton = digitalRead(topBtn);
-
-
-		if (topValue)
-		{
-			// Button is pressed, perform action
-			sentData.speedmotorRight = -512;
-			sentData.speedmotorLeft = 512;
-			// Additional code...
-		}
 	
 
 	// + ------------------------------ +
