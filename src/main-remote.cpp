@@ -142,7 +142,7 @@ void loop()
 	int rightButton = 0;
 	int leftButton = 0;
 
-	//!!!!!!!!!!! DEAD ZONE RANGE !!!!!!!!!!\\
+	//!!!!!!!!!!! DEAD ZONE RANGE !!!!!!!!!\\
 
 	const int deadZoneMax_X = 160;
 	const int deadZoneMin_X = -160;
